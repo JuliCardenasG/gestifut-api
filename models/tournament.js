@@ -23,6 +23,27 @@ module.exports = class Tournament {
                         let error = {
                             message: 'No se ha podido encontrar el usuario'
                         }
+                        return reject(error)
+                    }
+                })
+        })
+    }
+
+    static getTournaments() {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM tournaments', [id],
+                (error, result, fields) => {
+                    if (error)
+                        reject(error)
+                    else {
+                        if (result.length > 0) {
+                            let tournaments = result.map(tournament => new Tournament(tournament));
+                            resolve(tournament);
+                        }
+                        let error = {
+                            message: 'No se ha podido encontrar el usuario'
+                        }
+                        return reject(error)
                     }
                 })
         })
