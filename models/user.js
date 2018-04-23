@@ -32,6 +32,34 @@ module.exports = class User {
         })
     }
 
+    static login(loginJson) {
+        return new Promise((resolve, reject) => {
+            let email = loginJson.email;
+            let password = loginJson.password;
+            connection.query('SELECT * FROM users WHERE email = ?', [email], (error, result, fields) => {
+                if (error)
+                    return reject(error);
+                else {
+                    if (result.length > 0) {
+                        let user = result[0];
+                        bcrypt.compare(password, user.password, (error, result) => {
+                            if (error)
+                                return reject(error);
+
+                            if (result)
+                                resolve(this.generateToken(user.id, user.email, user.name));
+                            else
+                                return reject(error);
+                        })
+                    }
+                    else {
+                        return reject('No se ha podido encontrar el usuario');
+                    }
+                }
+            })
+        })
+    }
+
     static registerUser (userJson) {
         return new Promise((resolve, reject) => {
             bcrypt.hash(userJson.password, 5, (error, hash) => {
