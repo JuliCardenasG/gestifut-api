@@ -22,4 +22,4 @@ app.use('/public', express.static(__dirname + '/public'));
 
 app.use('/auth', auth);
 
-app.listen(8080);
+module.exports.app = app;
