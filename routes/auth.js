@@ -3,6 +3,8 @@ const User = require('../models/user');
 const config = require('../models/config');
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
+const ImageHandler = require('../utils/imageHandler');
+const Errors = require('../utils/errors');
 
 let router = express.Router();
 
@@ -63,6 +65,46 @@ router.get('/token', (req, res) => {
         }
         return res.send({ok: true});
     })(req, res);
+})
+
+router.post('/register', (req, res) => {
+    let newUser = req.body;
+    ImageHandler(newUser.image).then(image => {
+        newUser.image = image;
+        User.registerUser(newUser).then(resultId => {
+            if(resultId){
+                let loginJson = { 
+                    email: newUser.email,
+                    password: newUser.password
+                }
+                User.login(loginJson).then(responseToken => {
+                    let resp = {
+                        ok: true,
+                        token: responseToken,
+                        userId: resultId
+                    }
+                    res.send(resp);
+                }).catch(error => {
+                    let resp = {
+                        ok: false,
+                        error: error
+                    }
+                    res.status(500).send(resp);
+                })
+            }
+        }).catch(error => {
+            console.log(error.sqlState);
+            if(error.sqlState == '23000'){
+                let errorResp = {
+                    ok: false,
+                    error: 'El email ya está registrado'
+                }
+                res.status(400).send(errorResp);
+            }
+            let response = Errors.errorResponse(error);
+            res.status(500).send(response);
+        })
+    })
 })
 
 module.exports = router;
