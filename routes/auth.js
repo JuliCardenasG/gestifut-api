@@ -62,7 +62,7 @@ router.post('/register', (req, res) => {
                         ok: false,
                         error: error
                     }
-                    res.status(500).send(resp);
+                    return res.status(500).send(resp);
                 })
             }
         }).catch(error => {

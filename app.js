@@ -3,6 +3,8 @@ const cors = require('cors');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const auth = require('./routes/auth');
+const tournaments = require('./routes/tournaments');
+const sports = require('./routes/sports');
 
 let app = express();
 
@@ -21,5 +23,7 @@ app.use(bodyParser.json({
 app.use('/public', express.static(__dirname + '/public'));
 
 app.use('/auth', auth);
+app.use('/tournaments', tournaments);
+app.use('/sports', sports);
 
 app.listen(8080);

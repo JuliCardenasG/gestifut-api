@@ -47,3 +47,5 @@ router.get('/', (req, res) => {
         res.status(500).send(resp);
     })
 })
+
+module.exports = router;
