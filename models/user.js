@@ -27,6 +27,7 @@ module.exports = class User {
                         let error = {
                             message: 'No se ha podido encontrar el usuario'
                         }
+                        resolve(error)
                     }
                 })
         })

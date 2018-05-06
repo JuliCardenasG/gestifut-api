@@ -7,6 +7,7 @@ module.exports = class Tournament {
         this.sport_id = tournamentJson.sport_id;
         this.admin_id = tournamentJson.admin_id;
         this.name = tournamentJson.name;
+        this.teams_number = tournamentJson.teams_number;
     }
 
     static getTournament(id) {
@@ -21,9 +22,9 @@ module.exports = class Tournament {
                             resolve(tournament);
                         }
                         let error = {
-                            message: 'No se ha podido encontrar el usuario'
+                            message: 'No hay torneos'
                         }
-                        return reject(error)
+                        resolve(error)
                     }
                 })
         })
@@ -41,9 +42,9 @@ module.exports = class Tournament {
                             resolve(tournament);
                         }
                         let error = {
-                            message: 'No se ha podido encontrar el usuario'
+                            message: 'No se ha podido encontrar el torneo'
                         }
-                        return reject(error)
+                        resolve(error)
                     }
                 })
         })

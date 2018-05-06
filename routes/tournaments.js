@@ -1,6 +1,7 @@
 const express = require('express');
 const Errors = require('../utils/errors');
 const passport = require('passport');
+const Tournament = require('../models/tournament');
 
 let router = express.Router();
 
@@ -25,5 +26,24 @@ router.use((req, res, next) => {
 })
 
 router.get('/', (req, res) => {
-    
+    Tournament.getTournaments().then(tournaments => {
+        if(tournaments.message){
+            let resp = {
+                ok: false,
+                error: tournaments.message
+            }
+            res.send(resp)
+        }
+        let resp = {
+            ok: true,
+            tournaments: tournaments
+        };
+        res.send(tournaments);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
 })
