@@ -47,3 +47,31 @@ router.get('/', (req, res) => {
         res.status(500).send(resp);
     })
 })
+
+router.post('/', (req, res) => {
+    let tournamentJson = req.body;
+    let newTournamentJson = {
+        id: tournamentJson.id,
+        tournament_type_id: tournamentJson.tournamentTypeId,
+        sport_id : tournamentJson.sportId,
+        admin_id : tournamentJson.adminId,
+        name : tournamentJson.name,
+        teams_number : tournamentJson.teamsNumber,
+        password: tournamentJson.password
+    };
+    Tournament.createTournament(newTournamentJson).then(tournamentId => {
+        let resp = {
+            ok: true,
+            id: tournamentId
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+module.exports = router;
