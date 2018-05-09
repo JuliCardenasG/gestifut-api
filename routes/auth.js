@@ -41,7 +41,6 @@ router.post('/login', (req, res) => {
 
 router.post('/register', (req, res) => {
     let newUser = req.body;
-    console.log(req.body);
     ImageHandler(newUser.image).then(image => {
         newUser.image = image;
         User.registerUser(newUser).then(resultId => {
