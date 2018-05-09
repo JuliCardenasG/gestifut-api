@@ -50,7 +50,11 @@ module.exports = class User {
                             if (result)
                                 resolve(this.generateToken(user.id, user.email, user.name));
                             else
+<<<<<<< HEAD
                                 resolve({error: 'La contraseña no coincide'});
+=======
+                                return reject(error);
+>>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
                         })
                     }
                     else {

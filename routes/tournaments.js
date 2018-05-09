@@ -1,7 +1,10 @@
 const express = require('express');
 const Errors = require('../utils/errors');
 const passport = require('passport');
+<<<<<<< HEAD
 const Tournament = require('../models/tournament');
+=======
+>>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
 
 let router = express.Router();
 
@@ -26,6 +29,7 @@ router.use((req, res, next) => {
 })
 
 router.get('/', (req, res) => {
+<<<<<<< HEAD
     Tournament.getTournaments().then(tournaments => {
         if(tournaments.message){
             let resp = {
@@ -75,3 +79,7 @@ router.post('/', (req, res) => {
 })
 
 module.exports = router;
+=======
+    
+})
+>>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504

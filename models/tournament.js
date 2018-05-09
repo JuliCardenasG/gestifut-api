@@ -24,7 +24,11 @@ module.exports = class Tournament {
                         let error = {
                             message: 'No hay torneos'
                         }
+<<<<<<< HEAD
                         resolve(error)
+=======
+                        return reject(error)
+>>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
                     }
                 })
         })
@@ -42,9 +46,15 @@ module.exports = class Tournament {
                             resolve(tournament);
                         }
                         let error = {
+<<<<<<< HEAD
                             message: 'No se ha podido encontrar el torneo'
                         }
                         resolve(error)
+=======
+                            message: 'No se ha podido encontrar el usuario'
+                        }
+                        return reject(error)
+>>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
                     }
                 })
         })
