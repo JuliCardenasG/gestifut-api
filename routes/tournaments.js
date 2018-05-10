@@ -1,10 +1,7 @@
 const express = require('express');
 const Errors = require('../utils/errors');
 const passport = require('passport');
-<<<<<<< HEAD
 const Tournament = require('../models/tournament');
-=======
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
 
 let router = express.Router();
 
@@ -24,12 +21,12 @@ router.use((req, res, next) => {
             };
             return res.status(401).send(resp);
         }
+        req.user = req.user;
         next();
     })(req, res);
 })
 
 router.get('/', (req, res) => {
-<<<<<<< HEAD
     Tournament.getTournaments().then(tournaments => {
         if(tournaments.message){
             let resp = {
@@ -43,6 +40,34 @@ router.get('/', (req, res) => {
             tournaments: tournaments
         };
         res.send(tournaments);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+
+
+router.get('/user',  passport.authenticate('jwt', { session: false}), (req, res) => {
+    let user = req.user;
+    Tournament.getTournamentsCreatedByUser(user.id).then(tournaments => {
+        if(tournaments.message){
+            let resp = {
+                ok: false,
+                error: tournaments.message
+            }
+            res.send(resp)
+        }
+        else {
+            let resp = {
+                ok: true,
+                tournaments: tournaments
+            };
+            res.send(resp);
+        }
     }).catch(error => {
         let resp = {
             ok: false,
@@ -79,7 +104,3 @@ router.post('/', (req, res) => {
 })
 
 module.exports = router;
-=======
-    
-})
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504

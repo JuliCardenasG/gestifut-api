@@ -3,11 +3,8 @@ const User = require('../models/user');
 const config = require('../models/config');
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
-<<<<<<< HEAD
 const ImageHandler = require('../utils/imageHandler');
 const Errors = require('../utils/errors');
-=======
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
 
 let router = express.Router();
 
@@ -42,7 +39,6 @@ router.post('/login', (req, res) => {
     })
 })
 
-<<<<<<< HEAD
 router.post('/register', (req, res) => {
     let newUser = req.body;
     ImageHandler(newUser.image).then(image => {
@@ -83,8 +79,6 @@ router.post('/register', (req, res) => {
     })
 })
 
-=======
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
 router.get('/user', passport.authenticate('jwt', { session: false}), (req, res) => {
     let resp = {
         ok: true,
@@ -113,9 +107,4 @@ router.get('/token', (req, res) => {
     })(req, res);
 })
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
 module.exports = router;

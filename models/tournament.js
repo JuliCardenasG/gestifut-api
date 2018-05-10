@@ -8,6 +8,7 @@ module.exports = class Tournament {
         this.admin_id = tournamentJson.admin_id;
         this.name = tournamentJson.name;
         this.teams_number = tournamentJson.teams_number;
+        this.description = tournamentJson.description;
     }
 
     static getTournament(id) {
@@ -24,11 +25,7 @@ module.exports = class Tournament {
                         let error = {
                             message: 'No hay torneos'
                         }
-<<<<<<< HEAD
                         resolve(error)
-=======
-                        return reject(error)
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
                     }
                 })
         })
@@ -43,20 +40,34 @@ module.exports = class Tournament {
                     else {
                         if (result.length > 0) {
                             let tournaments = result.map(tournament => new Tournament(tournament));
-                            resolve(tournament);
+                            resolve(tournaments);
                         }
                         let error = {
-<<<<<<< HEAD
                             message: 'No se ha podido encontrar el torneo'
                         }
                         resolve(error)
-=======
-                            message: 'No se ha podido encontrar el usuario'
-                        }
-                        return reject(error)
->>>>>>> 49831d0cc9540e1ecc96c3796bf7180ef6b02504
                     }
                 })
+        })
+    }
+
+    static getTournamentsCreatedByUser(userId) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM tournaments WHERE admin_id = ?', [userId],
+            (error, result, fields) => {
+                if (error)
+                    reject(error)
+                else {
+                    if (result.length > 0) {
+                        let tournaments = result.map(tournament => new Tournament(tournament));
+                        resolve (tournaments);
+                    }
+                    let error = {
+                        message: 'No hay torneos creados por este usuario'
+                    }
+                    resolve(error)
+                }
+            })
         })
     }
 
