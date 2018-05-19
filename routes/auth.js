@@ -80,11 +80,13 @@ router.post('/register', (req, res) => {
 })
 
 router.get('/user', passport.authenticate('jwt', { session: false}), (req, res) => {
-    let resp = {
-        ok: true,
-        user: req.user
-    };
-    res.send(resp);
+    User.getUser(req.user.id).then(user => {
+        let resp = {
+            ok: true,
+            user: user
+        };
+        res.send(resp);
+    })
 });
 
 router.get('/token', (req, res) => {

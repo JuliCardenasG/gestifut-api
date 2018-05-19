@@ -26,6 +26,26 @@ router.use((req, res, next) => {
     })(req, res);
 })
 
+router.get('/tournaments/:id', (req, res) => {
+    let tournamentId = req.params.id;
+    Team.getTournamentTeams(tournamentId).then(teams => {
+        if(teams.message){
+            let resp = {
+                ok: false,
+                error: teams.message
+            }
+            res.send(resp)
+        }
+        else {
+            let resp = {
+                ok: true,
+                teams: teams
+            };
+            res.send(resp);
+        }
+    })
+})
+
 router.get('/', passport.authenticate('jwt', { session: false}), (req, res) => {
     let userId = req.user.id;
     Team.getUserParticipatedTeams(userId).then(teams => {

@@ -77,11 +77,11 @@ router.get('/user',  passport.authenticate('jwt', { session: false}), (req, res)
     })
 })
 
-router.post('/', (req, res) => {
+router.post('/', passport.authenticate('jwt', { session: false}), (req, res) => {
     let tournamentJson = req.body;
     let newTournamentJson = {
         id: tournamentJson.id,
-        admin_id : tournamentJson.adminId,
+        admin_id : req.user.id,
         name : tournamentJson.name,
         teams_number : tournamentJson.teamsNumber,
         is_public: tournamentJson.isPublic,

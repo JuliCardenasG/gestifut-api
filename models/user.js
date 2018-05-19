@@ -68,7 +68,6 @@ module.exports = class User {
                     name: userJson.name,
                     email: userJson.email,
                     password: encryptedPassword,
-                    role: userJson.role,
                     image: userJson.image
                 };
                 connection.query('INSERT INTO users SET ?', userData, (error, result, fields) => {

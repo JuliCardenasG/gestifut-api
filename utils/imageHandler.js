@@ -4,7 +4,7 @@ const sharp = require('sharp');
 let handleImage = (imageData) => {
     return new Promise((resolve, reject) => {
         if(!imageData)
-            resolve('public/img/user.png');
+            resolve('public/img/user.jpg');
         if(imageData.startsWith('public/')){
             resolve(imageData);
         }
@@ -12,7 +12,7 @@ let handleImage = (imageData) => {
         let buffer = new Buffer(data, 'base64');
         let imgPath = 'public/img/' + moment().unix() + '.png';
         sharp(buffer)
-            .resize(300)
+            .resize(200)
             .toFile(imgPath)
             .then(() => resolve(imgPath))
     })

@@ -4,7 +4,6 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const auth = require('./routes/auth');
 const tournaments = require('./routes/tournaments');
-const sports = require('./routes/sports');
 const teams = require('./routes/teams');
 
 let app = express();
@@ -25,7 +24,6 @@ app.use('/public', express.static(__dirname + '/public'));
 
 app.use('/auth', auth);
 app.use('/tournaments', tournaments);
-app.use('/sports', sports);
 app.use('/teams', teams);
 
 app.listen(8080);
