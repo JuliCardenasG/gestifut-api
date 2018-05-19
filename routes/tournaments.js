@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
             ok: true,
             tournaments: tournaments
         };
-        res.send(tournaments);
+        res.send(resp);
     }).catch(error => {
         let resp = {
             ok: false,

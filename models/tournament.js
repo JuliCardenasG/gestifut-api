@@ -82,4 +82,24 @@ module.exports = class Tournament {
                 })
         })
     }
+
+    static searchTournament(searchTerm) {
+        let searchPrepared = '%' + searchTerm + '%';
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM tournaments WHERE name LIKE ?', [searchPrepared], 
+            (error, result, fields) => {
+                if (error)
+                    return reject(error);
+                else
+                if (result.length > 0) {
+                    let tournaments = result.map(tournament => new Tournament(tournament));
+                    resolve (tournaments);
+                }
+                else {
+                    let tournaments = [];
+                    resolve(tournaments)
+                }
+            })
+        })
+    }
 }
