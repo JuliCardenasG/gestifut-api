@@ -65,10 +65,10 @@ router.post('/add-player', (req, res) => {
 
 router.post('/', (req, res) => {
     let teamJson = req.body;
-    console.log(teamJson);
     let newTeamJson = {
-        sport_id : teamJson.sportId,
-        name: teamJson.name
+        tournament_id: teamJson.tournamentId,
+        name: teamJson.name,
+        image: teamJson.image
     };
 
     Team.createTeam(newTeamJson).then(teamId => {

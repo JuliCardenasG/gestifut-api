@@ -3,11 +3,11 @@ const connection = require('./dbconfig');
 module.exports = class Tournament {
     constructor(tournamentJson) {
         this.id = tournamentJson.id;
-        this.tournament_type_id = tournamentJson.tournament_type_id;
-        this.sport_id = tournamentJson.sport_id;
         this.admin_id = tournamentJson.admin_id;
         this.name = tournamentJson.name;
         this.teams_number = tournamentJson.teams_number;
+        this.is_public = tournamentJson.is_public;
+        this.image = tournamentJson.image;
         this.description = tournamentJson.description;
     }
 

@@ -81,12 +81,12 @@ router.post('/', (req, res) => {
     let tournamentJson = req.body;
     let newTournamentJson = {
         id: tournamentJson.id,
-        tournament_type_id: tournamentJson.tournamentTypeId,
-        sport_id : tournamentJson.sportId,
         admin_id : tournamentJson.adminId,
         name : tournamentJson.name,
         teams_number : tournamentJson.teamsNumber,
-        password: tournamentJson.password
+        is_public: tournamentJson.isPublic,
+        image: tournamentJson.image,
+        description: tournamentJson.description
     };
     Tournament.createTournament(newTournamentJson).then(tournamentId => {
         let resp = {
