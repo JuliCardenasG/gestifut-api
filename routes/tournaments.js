@@ -2,19 +2,22 @@ const express = require('express');
 const Errors = require('../utils/errors');
 const passport = require('passport');
 const Tournament = require('../models/tournament');
+const Team = require('../models/team');
+const ImageHandler = require('../utils/imageHandler');
+const Calendar = require('../models/calendar');
 
 let router = express.Router();
 
 router.use((req, res, next) => {
-    passport.authenticate('jwt', { session: false}, (err, user, info) => {
-        if (err){
+    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        if (err) {
             let resp = {
                 ok: false,
                 error: 'Ha ocurrido un error'
             };
             return res.status(500).send()
         }
-        if(!user) {
+        if (!user) {
             let resp = {
                 ok: false,
                 error: 'No autorizado'
@@ -26,35 +29,11 @@ router.use((req, res, next) => {
     })(req, res);
 })
 
-router.get('/', (req, res) => {
-    Tournament.getTournaments().then(tournaments => {
-        if(tournaments.message){
-            let resp = {
-                ok: false,
-                error: tournaments.message
-            }
-            res.send(resp)
-        }
-        let resp = {
-            ok: true,
-            tournaments: tournaments
-        };
-        res.send(resp);
-    }).catch(error => {
-        let resp = {
-            ok: false,
-            error: error
-        }
-        res.status(500).send(resp);
-    })
-})
-
-
-
-router.get('/user',  passport.authenticate('jwt', { session: false}), (req, res) => {
+router.get('/user', passport.authenticate('jwt', { session: false }), (req, res) => {
     let user = req.user;
+    console.log(user);
     Tournament.getTournamentsCreatedByUser(user.id).then(tournaments => {
-        if(tournaments.message){
+        if (tournaments.message) {
             let resp = {
                 ok: false,
                 error: tournaments.message
@@ -77,21 +56,49 @@ router.get('/user',  passport.authenticate('jwt', { session: false}), (req, res)
     })
 })
 
-router.post('/', passport.authenticate('jwt', { session: false}), (req, res) => {
-    let tournamentJson = req.body;
-    let newTournamentJson = {
-        id: tournamentJson.id,
-        admin_id : req.user.id,
-        name : tournamentJson.name,
-        teams_number : tournamentJson.teamsNumber,
-        is_public: tournamentJson.isPublic,
-        image: tournamentJson.image,
-        description: tournamentJson.description
-    };
-    Tournament.createTournament(newTournamentJson).then(tournamentId => {
+router.get('/:id', (req, res) => {
+    const tournamentId = req.params.id;
+    Tournament.getTournament(tournamentId).then(tournament => {
+        if (tournament.message) {
+            let resp = {
+                ok: false,
+                error: tournament.message
+            }
+            res.send(resp)
+        }
+        else {
+            console.log(tournament);
+            Team.getTournamentTeamsWithPlayers(tournament.id).then(teams => {
+                tournament.teams = teams;
+                console.log(teams);
+                let resp = {
+                    ok: true,
+                    tournament: tournament
+                };
+                res.send(resp);
+            })
+        }
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+router.get('/', (req, res) => {
+    Tournament.getTournaments().then(tournaments => {
+        if (tournaments.message) {
+            let resp = {
+                ok: false,
+                error: tournaments.message
+            }
+            res.send(resp)
+        }
         let resp = {
             ok: true,
-            id: tournamentId
+            tournaments: tournaments
         };
         res.send(resp);
     }).catch(error => {
@@ -100,6 +107,58 @@ router.post('/', passport.authenticate('jwt', { session: false}), (req, res) => 
             error: error
         }
         res.status(500).send(resp);
+    })
+})
+
+router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+    let tournamentJson = req.body;
+    let newTournamentJson = {
+        id: tournamentJson.id,
+        admin_id: req.user.id,
+        name: tournamentJson.name,
+        is_public: tournamentJson.is_public,
+        image: tournamentJson.image,
+        description: tournamentJson.description
+    };
+    ImageHandler(newTournamentJson.image).then(image => {
+        newTournamentJson.image = image;
+        Tournament.createTournament(newTournamentJson).then(tournamentId => {
+            let teams = tournamentJson.teams;
+            let teamPromises = [];
+            teamsPromises = teams.map(team => {
+                team.tournament_id = tournamentId;
+                return new Promise((resolve, reject) => {
+                    ImageHandler(team.image).then(img => {
+                        team.image = img;
+                        Team.createTeam(team).then(insertId => {
+                            resolve()
+                        }).catch(err => reject());
+                    })
+                });
+            })
+
+            Promise.all(teamsPromises).then(() => {
+
+                let resp = {
+                    ok: true,
+                    id: tournamentId
+                };
+                res.send(resp);
+            }).catch(err => {
+                let resp = {
+                    ok: false,
+                    error: error
+                }
+                res.status(500).send(resp);
+            })
+        }).catch(error => {
+            let resp = {
+                ok: false,
+                error: error
+            }
+            res.status(500).send(resp);
+        })
+
     })
 })
 

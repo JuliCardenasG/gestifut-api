@@ -28,7 +28,7 @@ router.use((req, res, next) => {
 
 router.get('/tournaments/:id', (req, res) => {
     let tournamentId = req.params.id;
-    Team.getTournamentTeams(tournamentId).then(teams => {
+    Team.getTournamentTeamsWithPlayers(tournamentId).then(teams => {
         if(teams.message){
             let resp = {
                 ok: false,
