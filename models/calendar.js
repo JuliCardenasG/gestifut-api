@@ -4,7 +4,7 @@ module.exports = class Calendar {
     constructor (calendarJson) {
         this.id = calendarJson.id;
         this.tournament_id = calendarJson.tournament_id;
-        this.matchday_id = calendarJson.matchday_id;
+        // this.matchday_id = calendarJson.matchday_id;
     }
 
     static getCalendars() {
@@ -55,7 +55,7 @@ module.exports = class Calendar {
 
     static createCalendar(calendarJson) {
         return new Promise ((resolve, reject) => {
-            connection.query('INSERT INTO calendar SET ?', [calendarJson], 
+            connection.query('INSERT INTO calendars SET ?', [calendarJson],
             (error, result, fields) => {
                 if (error)
                     return reject(error)

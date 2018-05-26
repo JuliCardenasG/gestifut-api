@@ -5,7 +5,7 @@ const Tournament = require('../models/tournament');
 const Team = require('../models/team');
 const ImageHandler = require('../utils/imageHandler');
 const Calendar = require('../models/calendar');
-
+const robin = require('roundrobin');
 let router = express.Router();
 
 router.use((req, res, next) => {
@@ -31,7 +31,6 @@ router.use((req, res, next) => {
 
 router.get('/user', passport.authenticate('jwt', { session: false }), (req, res) => {
     let user = req.user;
-    console.log(user);
     Tournament.getTournamentsCreatedByUser(user.id).then(tournaments => {
         if (tournaments.message) {
             let resp = {
@@ -67,10 +66,8 @@ router.get('/:id', (req, res) => {
             res.send(resp)
         }
         else {
-            console.log(tournament);
             Team.getTournamentTeamsWithPlayers(tournament.id).then(teams => {
                 tournament.teams = teams;
-                console.log(teams);
                 let resp = {
                     ok: true,
                     tournament: tournament
@@ -127,21 +124,25 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
             let teamPromises = [];
             teamsPromises = teams.map(team => {
                 team.tournament_id = tournamentId;
+                console.log(tournamentId);
                 return new Promise((resolve, reject) => {
                     ImageHandler(team.image).then(img => {
                         team.image = img;
-                        Team.createTeam(team).then(insertId => {
-                            resolve()
+                        Team.createTeam(team).then(teamId => {
+                            resolve(teamId)
                         }).catch(err => reject());
                     })
                 });
             })
 
-            Promise.all(teamsPromises).then(() => {
-
+            Promise.all(teamsPromises).then((teamsIds) => {
+                const calendarJson = {
+                    tournament_id: tournamentId
+                };
                 let resp = {
                     ok: true,
-                    id: tournamentId
+                    id: tournamentId,
+                    teamsIds: teamsIds
                 };
                 res.send(resp);
             }).catch(err => {
