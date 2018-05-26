@@ -31,6 +31,41 @@ router.use((req, res, next) => {
     })(req, res);
 })
 
+router.get('/matchdays/tournament/:id', (req, res) => {
+    let tournamentId = req.params.id;
+
+    Matchday.getMatchdaysByTournament(tournamentId).then(matchdays => {
+        let resp = {
+            ok: true,
+            matchdays: matchdays
+        };
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+router.post('/matchdays', (req, res) => {
+    let tournamentId = req.body.tournamentId;
+    let matchdayNumber = req.body.matchdayNumber;
+
+    Matchday.getMatchesFromMatchday(matchdayNumber, tournamentId).then(matches => {
+        let resp = {
+            ok: true,
+            matches: matches
+        };
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
 router.get('/tournaments/:id', (req, res) => {
     const tournamentId = req.params.id;
     Match.getTournamentMatches(tournamentId).then(matches => {
@@ -55,7 +90,7 @@ router.post('/', (req, res) => {
     const matchdays = robin(teams.length, teams);
 
     let matchdaysPromises = [];
-    const matchdayNumbers = teams.length - 1;
+    const matchdayNumbers = teams.length % 2 == 0 ? teams.length - 1 : teams.length;
     let matchdayIds = [];
 
     for (let i = 1; i <= matchdayNumbers; i++) {
@@ -81,11 +116,21 @@ router.post('/', (req, res) => {
     Promise.all(matchdaysPromises).then(() => {
         let matchesArray = [];
         let matchesPromises = [];
+        console.log('Jornadas: ', matchdays);
+        console.log(matchdays[0][0]);
+        // console.log(matchdays[0][1]);
+        console.log(matchdays[1][0]);
+        // console.log(matchdays[1][1]);
+        console.log(matchdays[2][0]);
+        let matchesPerMatchday = Math.floor(teams.length / 2)
+        console.log('Partidos por jornada', matchesPerMatchday);
+        //Jornada
         for (let i = 0; i < matchdayNumbers; i++) {
-            for(let j = 0; j < Math.floor(teams.length / 2); j++) {
+            //Partido
+            for(let j = 0; j < matchesPerMatchday; j++) {
                 let matchPromise = new Promise((resolve, reject) => {
                     let match = matchdays[i][j]
-                    // console.log(match);
+                    console.log('Partido: ', match);
                     let matchJson = {
                         matchday_id: matchdayIds[i],
                         team_local_id: match[0].id,
