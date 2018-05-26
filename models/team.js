@@ -65,7 +65,7 @@ module.exports = class Team {
         })
     }
 
-    static getTournamentTeamsWithPlayers(tournamentId) {
+    static getTournamentTeamsWithPlayers(tournamentId) {console.log
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM teams WHERE tournament_id = ?', [tournamentId],
             (error, result, fields) => {
@@ -94,6 +94,34 @@ module.exports = class Team {
                         }
                         resolve (error)
                     }
+                }
+            })
+        })
+    }
+
+    static updateTeam(teamJson) {
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE teams SET ? WHERE id = ?', [teamJson.id, teamJson],
+            (error, result, fields) => {
+                if (error) {
+                    return reject (error);
+                }
+                else {
+                    resolve (result.affectedRows);
+                }
+            })
+        })
+    }
+
+    static deleteTeam(teamId) {
+        return new Promise((resolve, reject) => {
+            connection.query('DELETE FROM teams WHERE id = ?', [teamId],
+            (error, result, fields) => {
+                if (error) {
+                    return reject (error)
+                }
+                else {
+                    resolve (result.affectedRows);
                 }
             })
         })

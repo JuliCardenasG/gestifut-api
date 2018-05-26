@@ -5,6 +5,8 @@ const Tournament = require('../models/tournament');
 const Team = require('../models/team');
 const ImageHandler = require('../utils/imageHandler');
 const Calendar = require('../models/calendar');
+const Matchday = require('../models/matchday');
+const Match = require('../models/match');
 const robin = require('roundrobin');
 let router = express.Router();
 
@@ -68,11 +70,17 @@ router.get('/:id', (req, res) => {
         else {
             Team.getTournamentTeamsWithPlayers(tournament.id).then(teams => {
                 tournament.teams = teams;
-                let resp = {
-                    ok: true,
-                    tournament: tournament
-                };
-                res.send(resp);
+                Matchday.getMatchdaysByTournament(tournamentId).then(matchdays => {
+                    tournament.matchdays = matchdays;
+                    Match.getTournamentMatches(tournamentId).then(matches => {
+                        tournament.matches = matches;
+                        let resp = {
+                            ok: true,
+                            tournament: tournament
+                        };
+                        res.send(resp);
+                    })
+                })
             })
         }
     }).catch(error => {
@@ -127,8 +135,10 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
                 console.log(tournamentId);
                 return new Promise((resolve, reject) => {
                     ImageHandler(team.image).then(img => {
+                        console.log(img);
                         team.image = img;
                         Team.createTeam(team).then(teamId => {
+                            console.log(teamId);
                             resolve(teamId)
                         }).catch(err => reject());
                     })
@@ -148,7 +158,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
             }).catch(err => {
                 let resp = {
                     ok: false,
-                    error: error
+                    error: err
                 }
                 res.status(500).send(resp);
             })
@@ -160,6 +170,41 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
             res.status(500).send(resp);
         })
 
+    })
+})
+
+router.put('/:id', (req, res) => {
+    let tournamentId = req.params.id;
+    let tournamentJson = req.body;
+
+    Tournament.updateTournament(tournamentJson).then(affRows => {
+        let resp = {
+            ok: true
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+});
+
+router.delete('/:id', (req, res) => {
+    let tournamentId = req.params.id;
+
+    Tournament.deleteTournament(tournamentId).then(ok => {
+        let resp = {
+            ok: true
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
     })
 })
 

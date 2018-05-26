@@ -6,15 +6,15 @@ const Team = require('../models/team');
 let router = express.Router();
 
 router.use((req, res, next) => {
-    passport.authenticate('jwt', { session: false}, (err, user, info) => {
-        if (err){
+    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        if (err) {
             let resp = {
                 ok: false,
                 error: 'Ha ocurrido un error'
             };
             return res.status(500).send()
         }
-        if(!user) {
+        if (!user) {
             let resp = {
                 ok: false,
                 error: 'No autorizado'
@@ -29,7 +29,7 @@ router.use((req, res, next) => {
 router.get('/tournaments/:id', (req, res) => {
     let tournamentId = req.params.id;
     Team.getTournamentTeamsWithPlayers(tournamentId).then(teams => {
-        if(teams.message){
+        if (teams.message) {
             let resp = {
                 ok: false,
                 error: teams.message
@@ -46,10 +46,10 @@ router.get('/tournaments/:id', (req, res) => {
     })
 })
 
-router.get('/', passport.authenticate('jwt', { session: false}), (req, res) => {
+router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
     let userId = req.user.id;
     Team.getUserParticipatedTeams(userId).then(teams => {
-        if(teams.message){
+        if (teams.message) {
             let resp = {
                 ok: false,
                 error: teams.message
@@ -74,13 +74,13 @@ router.post('/add-player', (req, res) => {
         };
         res.send(resp);
     })
-    .catch(error => {
-        let resp = {
-            ok: false,
-            error: error
-        }
-        res.status(500).send(resp);
-    })
+        .catch(error => {
+            let resp = {
+                ok: false,
+                error: error
+            }
+            res.status(500).send(resp);
+        })
 })
 
 router.post('/', (req, res) => {
@@ -105,5 +105,42 @@ router.post('/', (req, res) => {
         res.status(500).send(resp);
     })
 });
+
+router.put('/:id', (req, res) => {
+    let teamJson = req.body;
+    let editTeamJson = {
+        tournament_id: teamJson.tournamentId,
+        name: teamJson.name,
+        image: teamJson.image
+    };
+    Team.updateTeam(teamJson).then(affRows => {
+        let resp = {
+            ok: true,
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+router.delete('/:id', (req, res) => {
+    let teamId = req.params.id;
+    Team.deleteTeam(teamId).then(affRows => {
+        let resp = {
+            ok: true,
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
 
 module.exports = router;

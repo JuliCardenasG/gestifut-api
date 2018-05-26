@@ -102,4 +102,30 @@ module.exports = class Tournament {
             })
         })
     }
+
+    static updateTournament(tournamentJson) {
+        return new Promise ((resolve, reject) => {
+            connection.query('UPDATE tournaments SET ? WHERE id = ?', [tournamentJson, tournamentJson.id],
+            (error, result, fields) => {
+                if (error) {
+                    return reject (error);
+                }
+                else {
+                    resolve (result.affectedRows);
+                }
+            })
+        })
+    }
+
+    static deleteTournament(tournamentId) {
+        return new Promise ((resolve, reject) => {
+            connection.query('DELETE FROM tournaments WHERE id = ?', [tournamentId],
+            (error, result, fields) => {
+                if (error)
+                    return reject (error);
+                else
+                    resolve(result.affectedRows);
+            })
+        })
+    }
 }
