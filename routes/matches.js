@@ -31,6 +31,23 @@ router.use((req, res, next) => {
     })(req, res);
 })
 
+router.get('/:id', (req, res) => {
+    let matchId = req.params.id;
+    Match.getMatch(matchId).then(match => {
+        let resp = {
+            ok: true,
+            match: match
+        };
+        res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
 router.get('/matchdays/tournament/:id', (req, res) => {
     let tournamentId = req.params.id;
 
@@ -116,21 +133,13 @@ router.post('/', (req, res) => {
     Promise.all(matchdaysPromises).then(() => {
         let matchesArray = [];
         let matchesPromises = [];
-        console.log('Jornadas: ', matchdays);
-        console.log(matchdays[0][0]);
-        // console.log(matchdays[0][1]);
-        console.log(matchdays[1][0]);
-        // console.log(matchdays[1][1]);
-        console.log(matchdays[2][0]);
         let matchesPerMatchday = Math.floor(teams.length / 2)
-        console.log('Partidos por jornada', matchesPerMatchday);
         //Jornada
         for (let i = 0; i < matchdayNumbers; i++) {
             //Partido
-            for(let j = 0; j < matchesPerMatchday; j++) {
+            for (let j = 0; j < matchesPerMatchday; j++) {
                 let matchPromise = new Promise((resolve, reject) => {
                     let match = matchdays[i][j]
-                    console.log('Partido: ', match);
                     let matchJson = {
                         matchday_id: matchdayIds[i],
                         team_local_id: match[0].id,
@@ -138,7 +147,6 @@ router.post('/', (req, res) => {
                         team_local_goals: 0,
                         team_visitor_goals: 0
                     }
-                    // console.log(matchJson);
                     Match.createMatch(matchJson).then(matchId => {
                         resolve(matchId);
                     }).catch(error => {
@@ -166,6 +174,41 @@ router.post('/', (req, res) => {
             }
             res.status(500).send(resp);
         })
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+// router.put('/:id', (req, res) => {
+//     let matchId = req.params.id;
+//     let matchResult = req.body;
+//     let matchResultJson = {
+//         id: matchResult.id,
+//         team_local_goals: matchResult.teamLocalGoals,
+//         team_visitor_goals: matchResult.teamVisitorGoals 
+//     };
+
+//     Match.editMatch()
+// })
+
+router.put('/result', (req, res) => {
+    let matchId = req.params.id;
+    let matchResult = req.body;
+    let matchResultJson = {
+        id: matchResult.id,
+        team_local_goals: matchResult.teamLocalGoals,
+        team_visitor_goals: matchResult.teamVisitorGoals
+    };
+
+    Match.setMatchResult(matchResultJson).then(affRows => {
+        let resp = {
+            ok: true
+        };
+        res.send(resp);
     }).catch(error => {
         let resp = {
             ok: false,

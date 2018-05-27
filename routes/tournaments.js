@@ -7,6 +7,7 @@ const ImageHandler = require('../utils/imageHandler');
 const Calendar = require('../models/calendar');
 const Matchday = require('../models/matchday');
 const Match = require('../models/match');
+const Clasification = require('../models/clasification');
 const robin = require('roundrobin');
 let router = express.Router();
 
@@ -138,6 +139,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
                         console.log(img);
                         team.image = img;
                         Team.createTeam(team).then(teamId => {
+
                             console.log(teamId);
                             resolve(teamId)
                         }).catch(err => reject());

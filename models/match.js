@@ -11,7 +11,7 @@ module.exports = class Match {
         this.date = matchJson.date;
     }
 
-    static createMatch (matchJson) {
+    static createMatch(matchJson) {
         return new Promise((resolve, reject) => {
             connection.query('INSERT INTO matches SET ?', [matchJson],
                 (error, result, fields) => {
@@ -22,32 +22,64 @@ module.exports = class Match {
                 })
         })
     }
-    
 
-    static getTournamentMatches (tournamentId) {
+    static getMatch(matchId) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM matches WHERE matchday_id IN (SELECT id FROM matchdays WHERE tournament_id = ?)', 
-            [tournamentId], (error, result, fields) => {
-                if (error)
-                    return reject(error);
-                else {
-                    let matches = result.map(match => new Match (match));
-                    resolve(matches);
-                }
-            })
+            connection.query('SELECT * FROM matches WHERE id = ?', [matchId],
+                (error, result, fields) => {
+                    if (error)
+                        return reject(error)
+                    else {
+                        let match = new Match(result[0]);
+                        connection.query('SELECT tournament_id FROM matchdays WHERE id = ?', [match.matchday_id],
+                            (error, result, fields) => {
+                                match.tournament_id = result[0].tournament_id;
+                                resolve(match);
+                            })
+                    }
+                })
         })
     }
 
-    static editMatch (matchJson) {
-        return new Promise ((resolve, reject) => {
+
+    static getTournamentMatches(tournamentId) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM matches WHERE matchday_id IN (SELECT id FROM matchdays WHERE tournament_id = ?)',
+                [tournamentId], (error, result, fields) => {
+                    if (error)
+                        return reject(error);
+                    else {
+                        let matches = result.map(match => new Match(match));
+                        resolve(matches);
+                    }
+                })
+        })
+    }
+
+    static editMatch(matchJson) {
+        return new Promise((resolve, reject) => {
             connection.query('UPDATE matches SET ? WHERE id = ?', [matchJson, matchJson.id],
-            (error, result, fields) => {
-                if (error)
-                    return reject(error);
-                else {
-                    resolve(matchJson)
-                }
-            })
+                (error, result, fields) => {
+                    if (error)
+                        return reject(error);
+                    else {
+                        resolve(matchJson)
+                    }
+                })
+        })
+    }
+
+    static setMatchResult(matchResultJson) {
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE matches SET team_local_goals = ?, team_visitor_goals = ? WHERE id = ?',
+                [matchResultJson.team_local_goals, matchResultJson.team_visitor_goals, matchResultJson.id],
+                (error, result, fields) => {
+                    if (error)
+                        reject(error)
+                    else {
+                        resolve(result.affectedRows)
+                    }
+                })
         })
     }
 }

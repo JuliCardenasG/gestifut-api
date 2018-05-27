@@ -2,6 +2,7 @@ const express = require('express');
 const Errors = require('../utils/errors');
 const passport = require('passport');
 const Team = require('../models/team');
+const Player = require('../models/player');
 
 let router = express.Router();
 
@@ -46,21 +47,23 @@ router.get('/tournaments/:id', (req, res) => {
     })
 })
 
-router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
-    let userId = req.user.id;
-    Team.getUserParticipatedTeams(userId).then(teams => {
-        if (teams.message) {
+router.get('/:id', (req, res) => {
+    let teamId = req.params.id;
+    Team.getTeam(teamId).then(team => {
+        Player.getPlayersFromTeam(teamId).then(players => {
+            team.players = players;
             let resp = {
-                ok: false,
-                error: teams.message
-            }
-            res.send(resp)
-        }
+                ok: true,
+                team: team
+            };
+            res.send(resp);
+        })
+    }).catch(error => {
         let resp = {
-            ok: true,
-            teams: teams
-        };
-        res.send(resp);
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
     })
 })
 
@@ -73,14 +76,13 @@ router.post('/add-player', (req, res) => {
             id: insertId
         };
         res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
     })
-        .catch(error => {
-            let resp = {
-                ok: false,
-                error: error
-            }
-            res.status(500).send(resp);
-        })
 })
 
 router.post('/', (req, res) => {

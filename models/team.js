@@ -21,9 +21,9 @@ module.exports = class Team {
         })
     }
 
-    static getTeam() {
+    static getTeam(teamId) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM teams WHERE id = ?', id,
+            connection.query('SELECT * FROM teams WHERE id = ?', [teamId],
                 (error, result, fields) => {
                     if (error)
                         reject(error)
@@ -36,7 +36,7 @@ module.exports = class Team {
                             let error = {
                                 message: 'No se ha podido encontrar el equipo'
                             }
-                            return reject(error);
+                            reject(error);
                         }
                     }
                 })

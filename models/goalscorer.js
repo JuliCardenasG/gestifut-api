@@ -7,4 +7,21 @@ module.exports = class Goalscorer {
         this.team_id = goalscorerJson.team_id;
         this.player_id = goalscorerJson.player_id;
     }
+
+    getGoalsScoredFromPlayer(playerId) {
+        return new Promise ((resolve, reject) => {
+            connection.query('SELECT COUNT(*) AS goals FROM goalscorers WHERE player_id = ?',
+            (error, result, fields) => {
+                if (error)
+                    reject (error)
+                else {
+                    resolve(result);
+                }
+            })
+        })
+    }
+
+    addGoalToMatch() {
+        
+    }
 }
