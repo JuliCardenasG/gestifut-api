@@ -70,6 +70,7 @@ module.exports = class Match {
     }
 
     static setMatchResult(matchResultJson) {
+        console.log(matchResultJson);
         return new Promise((resolve, reject) => {
             connection.query('UPDATE matches SET team_local_goals = ?, team_visitor_goals = ? WHERE id = ?',
                 [matchResultJson.team_local_goals, matchResultJson.team_visitor_goals, matchResultJson.id],

@@ -67,13 +67,17 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.post('/add-player', (req, res) => {
-    let userId = req.body.userId;
-    let teamId = req.body.teamId;
-    Team.addUserToTeam(userId, teamId).then(insertId => {
+router.post('/players', (req, res) => {
+    let playerJson = req.body;
+    let newPlayerJson = {
+        name: playerJson.name,
+        number: playerJson.number,
+        team_id: playerJson.teamId
+    };
+    Player.createPlayer(newPlayerJson).then(playerId => {
         let resp = {
             ok: true,
-            id: insertId
+            id: playerId
         };
         res.send(resp);
     }).catch(error => {

@@ -6,6 +6,7 @@ const ImageHandler = require('../utils/imageHandler');
 const Calendar = require('../models/calendar');
 const Matchday = require('../models/matchday');
 const Match = require('../models/match');
+const Clasification = require('../models/clasification');
 const robin = require('roundrobin');
 
 let router = express.Router();
@@ -91,6 +92,86 @@ router.get('/tournaments/:id', (req, res) => {
             matches: matches
         };
         res.send(resp);
+    }).catch(error => {
+        let resp = {
+            ok: false,
+            error: error
+        }
+        res.status(500).send(resp);
+    })
+})
+
+router.post('/result', (req, res) => {
+    let matchId = req.params.id;
+    let matchResult = req.body;
+    let matchResultJson = {
+        id: matchResult.id,
+        team_local_goals: matchResult.teamLocalGoals,
+        team_visitor_goals: matchResult.teamVisitorGoals,
+    };
+
+    let tournamentId = matchResult.tournamentId;
+    let team_local_id = matchResult.teamLocalId;
+    let team_visitor_id = matchResult.teamVisitorId;
+    let teamLocalGoals = matchResult.teamLocalGoals;
+    let teamVisitorGoals = matchResult.teamVisitorGoals;
+
+    Match.setMatchResult(matchResultJson).then(affRows => {
+        Clasification.getTournamentClasification(tournamentId).then(clasifications => {
+            let localTeamCurrentClasification = clasifications.find(clasification => clasification.team_id == team_local_id);
+            let visitorTeamCurrentClasification = clasifications.find(clasification => clasification.team_id == team_visitor_id);
+            
+            let clasificationsArray = [];
+
+            let localTeamNewClasification = {
+                tournament_id: tournamentId,
+                team_id: team_local_id,
+                goals_scored: localTeamCurrentClasification.goals_scored + teamLocalGoals,
+                goals_against: localTeamCurrentClasification.goals_against + teamVisitorGoals,
+            };
+
+            let visitorTeamNewClasification = {
+                tournament_id: tournamentId,
+                team_id: team_visitor_id,
+                goals_scored: visitorTeamCurrentClasification.goals_scored + teamVisitorGoals,
+                goals_against: visitorTeamCurrentClasification.goals_against + teamLocalGoals,
+                points: visitorTeamCurrentClasification.points
+            };
+            
+            if (teamLocalGoals > teamVisitorGoals) {
+                localTeamNewClasification.points = localTeamCurrentClasification.points + 3;
+                visitorTeamNewClasificationpoints = visitorTeamCurrentClasification.points;
+
+                clasificationsArray.push(localTeamNewClasification, visitorTeamNewClasification);
+            }
+            else if (teamLocalGoals < teamVisitorGoals) {
+                localTeamNewClasification.points = localTeamCurrentClasification.points;
+                visitorTeamNewClasificationpoints = visitorTeamCurrentClasification.points + 3;
+
+                clasificationsArray.push(localTeamNewClasification, visitorTeamNewClasification);
+            }
+            else {
+                localTeamNewClasification.points = localTeamCurrentClasification.points + 1;
+                visitorTeamNewClasification.points = visitorTeamCurrentClasification.points + 1;
+
+                clasificationsArray.push(localTeamNewClasification, visitorTeamNewClasification);
+            }
+
+            let clasificationsPromises = clasificationsArray.map(clasificationJson => {
+                return new Promise((resolve, reject) => {
+                    Clasification.updateClasification(clasificationJson).then(affRows => {
+                        resolve(affRows)
+                    })
+                })
+            })
+
+            Promise.all(clasificationsPromises).then(() => {
+                let resp = {
+                    ok: true
+                };
+                res.send(resp);
+            })
+        })
     }).catch(error => {
         let resp = {
             ok: false,
@@ -194,28 +275,5 @@ router.post('/', (req, res) => {
 
 //     Match.editMatch()
 // })
-
-router.put('/result', (req, res) => {
-    let matchId = req.params.id;
-    let matchResult = req.body;
-    let matchResultJson = {
-        id: matchResult.id,
-        team_local_goals: matchResult.teamLocalGoals,
-        team_visitor_goals: matchResult.teamVisitorGoals
-    };
-
-    Match.setMatchResult(matchResultJson).then(affRows => {
-        let resp = {
-            ok: true
-        };
-        res.send(resp);
-    }).catch(error => {
-        let resp = {
-            ok: false,
-            error: error
-        }
-        res.status(500).send(resp);
-    })
-})
 
 module.exports = router;

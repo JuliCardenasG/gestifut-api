@@ -23,14 +23,42 @@ module.exports = class Clasification {
         })
     }
 
-    static getClasification(clasificationId) {
+    static updateClasification (clasificationJson){
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM clasifications WHERE id = ?', [clasificationId],
-            (error, result, id) => {
+            connection.query('UPDATE clasifications SET ? WHERE team_id = ?', [clasificationJson, clasificationJson.team_id],
+            (error, result, fields) => {
                 if (error)
                     reject (error)
                 else {
+                    resolve(result.affectedRows);
+                }
+            })
+        })
+    }
 
+    static getClasification(clasificationId) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM clasifications WHERE id = ?', [clasificationId],
+            (error, result, fields) => {
+                if (error)
+                    reject (error)
+                else {
+                    let clasification = new Clasification(result[0]);
+                    resolve(clasification);
+                }
+            })
+        })
+    }
+
+    static getTournamentClasification(tournamentId) {
+        return new Promise ((resolve, reject) => {
+            connection.query('SELECT * FROM clasifications WHERE tournament_id = ? ORDER BY points DESC', [tournamentId],
+            (error, result, fields) => {
+                if (error)
+                    reject (error)
+                else {
+                    let clasifications = result.map(clasification => new Clasification(clasification));
+                    resolve(clasifications);
                 }
             })
         })
