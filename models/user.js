@@ -9,7 +9,6 @@ module.exports = class User {
         this.name = userJson.name;
         this.email = userJson.email,
         this.password = userJson.password;
-        this.role = userJson.role;
         this.image = userJson.image;
     }
 
@@ -27,8 +26,37 @@ module.exports = class User {
                         let error = {
                             message: 'No se ha podido encontrar el usuario'
                         }
+                        resolve(error)
                     }
                 })
+        })
+    }
+
+    static login(loginJson) {
+        return new Promise((resolve, reject) => {
+            let email = loginJson.email;
+            let password = loginJson.password;
+            connection.query('SELECT * FROM users WHERE email = ?', [email], (error, result, fields) => {
+                if (error)
+                    return reject(error);
+                else {
+                    if (result.length > 0) {
+                        let user = result[0];
+                        bcrypt.compare(password, user.password, (error, result) => {
+                            if (error)
+                                return reject(error);
+
+                            if (result)
+                                resolve(this.generateToken(user.id, user.email, user.name));
+                            else
+                                resolve({error: 'La contraseña no coincide'});
+                        })
+                    }
+                    else {
+                        return reject('No se ha podido encontrar el usuario');
+                    }
+                }
+            })
         })
     }
 
@@ -40,7 +68,6 @@ module.exports = class User {
                     name: userJson.name,
                     email: userJson.email,
                     password: encryptedPassword,
-                    role: userJson.role,
                     image: userJson.image
                 };
                 connection.query('INSERT INTO users SET ?', userData, (error, result, fields) => {
