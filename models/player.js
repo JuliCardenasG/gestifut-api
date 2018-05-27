@@ -37,7 +37,7 @@ module.exports = class Player {
                     if (error)
                         return reject(error)
                     else
-                        resolve(result.insr)
+                        resolve(result.insertId)
                 })
         })
     }

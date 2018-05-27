@@ -7,6 +7,7 @@ const tournaments = require('./routes/tournaments');
 const teams = require('./routes/teams');
 const calendars = require('./routes/calendars');
 const matches = require('./routes/matches');
+const clasifications = require('./routes/clasifications');
 
 let app = express();
 
@@ -29,5 +30,6 @@ app.use('/tournaments', tournaments);
 app.use('/teams', teams);
 app.use('/calendars', calendars);
 app.use('/matches', matches);
+app.use('/clasifications', clasifications);
 
 app.listen(8080);

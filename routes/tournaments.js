@@ -133,15 +133,20 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
             let teamPromises = [];
             teamsPromises = teams.map(team => {
                 team.tournament_id = tournamentId;
-                console.log(tournamentId);
                 return new Promise((resolve, reject) => {
                     ImageHandler(team.image).then(img => {
-                        console.log(img);
                         team.image = img;
                         Team.createTeam(team).then(teamId => {
-
-                            console.log(teamId);
-                            resolve(teamId)
+                            let clasificationJson = {
+                                tournament_id: tournamentId,
+                                team_id: teamId,
+                                goals_scored: 0,
+                                goals_against: 0,
+                                points: 0
+                            };
+                            Clasification.createClasification(clasificationJson).then(clasification => {
+                                resolve(teamId)
+                            })
                         }).catch(err => reject());
                     })
                 });

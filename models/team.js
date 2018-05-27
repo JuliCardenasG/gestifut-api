@@ -65,7 +65,7 @@ module.exports = class Team {
         })
     }
 
-    static getTournamentTeamsWithPlayers(tournamentId) {console.log
+    static getTournamentTeamsWithPlayers(tournamentId) {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM teams WHERE tournament_id = ?', [tournamentId],
             (error, result, fields) => {
