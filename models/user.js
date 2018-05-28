@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const connection = require('./dbconfig');
 const config = require('./config');
+const ImageHandler = require('../utils/imageHandler');
 
 module.exports = class User {
     constructor(userJson) {
@@ -78,6 +79,63 @@ module.exports = class User {
                 })
             })
         })
+    }
+
+    static checkGoogleUser(userJson) {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM users WHERE id_google = ?', [userJson.id_google],
+                (error, result, fields) => {
+                    let googleResp = {};
+                    if (error) {
+                        reject(error)
+                    } 
+                    //If the user Google Id is not registered, it will proceed to register the user
+                    else if (result.length === 0) {
+                        User.registerGoogleUser(userJson).then(insertedUser => {
+                            let token = User.generateToken(insertedUser.id, insertedUser.email, insertedUser.name);
+                            googleResp = {
+                                registered: true,
+                                logged: true,
+                                token: token
+                            };
+                            resolve(googleResp);
+                        });
+                    } else {
+                        let user = result[0];
+                        let token = User.generateToken(user.id, user.email)
+                        googleResp = {
+                            registered: false,
+                            logged: true,
+                            token: token
+                        };
+                        resolve(googleResp);
+                    }
+                })
+        })
+    }
+
+    static registerGoogleUser(userJson) {
+        return new Promise((resolve, reject) => {
+            //Async function to get the image from Google servers
+            ImageHandler.getGoogleImg(userJson.avatar).then(image => {
+                let user = {
+                    name: userJson.name,
+                    email: userJson.email,
+                    image: image,
+                    id_google: userJson.id_google
+                };
+                connection.query('INSERT INTO users SET ?', [user], (error, result, fields) => {
+                    if (error)
+                        return reject(error);
+                    else
+                        resolve({
+                            id: result.insertId,
+                            email: userJson.email,
+                            name: userJson.name
+                        });
+                });
+            });
+        });
     }
 
     static generateToken(id, email, name) {
