@@ -5,6 +5,7 @@ const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 const ImageHandler = require('../utils/imageHandler');
 const Errors = require('../utils/errors');
+const https = require('https');
 
 let router = express.Router();
 
@@ -41,7 +42,7 @@ router.post('/login', (req, res) => {
 
 router.post('/register', (req, res) => {
     let newUser = req.body;
-    ImageHandler(newUser.image).then(image => {
+    ImageHandler.handleImage(newUser.image).then(image => {
         newUser.image = image;
         User.registerUser(newUser).then(resultId => {
             if(resultId){
@@ -107,6 +108,50 @@ router.get('/token', (req, res) => {
         }
         return res.send({ok: true});
     })(req, res);
+})
+
+router.get('/google', (req, res) => {
+    let token = req.headers.authorization.split(' ')[1];
+    let url = 'https://www.googleapis.com/plus/v1/people/me?access_token=';
+
+    //HTTP call to Google API
+    https.request(url + token).on('response', (response) => {
+            let body = '';
+            response.on('data', (chunk) => {
+                body += chunk;
+            }).on('end', () => {
+                let data = JSON.parse(body);
+                console.log(data);
+                let user = {
+                    id_google: data.id,
+                    name: data.name.givenName,
+                    email: data.emails[0].value,
+                    avatar: data.image.url
+                };
+                User.checkGoogleUser(user).then(googleResp =>{
+                    let resp = {};
+                    if (googleResp.logged === true){
+                        resp = {
+                            ok: true,
+                            token: googleResp.token
+                        };
+                    }
+                    else {
+                        resp = {
+                            ok: false,
+                            errorMessage: "Could not login with Google"
+                        };
+                    }
+                    res.send(resp);
+                }).catch(err => {
+                    let resp = {
+                        ok: false,
+                        error: err
+                    }
+                    res.status(500).send(resp);
+                })
+            })
+        }).end();
 })
 
 module.exports = router;

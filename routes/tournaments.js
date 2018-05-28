@@ -126,7 +126,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
         image: tournamentJson.image,
         description: tournamentJson.description
     };
-    ImageHandler(newTournamentJson.image).then(image => {
+    ImageHandler.handleImage(newTournamentJson.image).then(image => {
         newTournamentJson.image = image;
         Tournament.createTournament(newTournamentJson).then(tournamentId => {
             let teams = tournamentJson.teams;
@@ -134,7 +134,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
             teamsPromises = teams.map(team => {
                 team.tournament_id = tournamentId;
                 return new Promise((resolve, reject) => {
-                    ImageHandler(team.image).then(img => {
+                    ImageHandler.handleImage(team.image).then(img => {
                         team.image = img;
                         Team.createTeam(team).then(teamId => {
                             let clasificationJson = {

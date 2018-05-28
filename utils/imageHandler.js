@@ -1,6 +1,9 @@
 const moment = require('moment');
 const uuid = require('uuid/v1');
 const sharp = require('sharp');
+const https = require('https');
+const fs = require('fs');
+// const request = require('request');
 
 let handleImage = (imageData) => {
     return new Promise((resolve, reject) => {
@@ -20,4 +23,29 @@ let handleImage = (imageData) => {
 
 }
 
-module.exports = handleImage;
+
+
+let getGoogleImg = (url) => {
+    console.log(url);
+    return new Promise((resolve, reject) => {
+        https.request(url)
+            .on('response', (resp) => {
+                let body = '';
+                resp.setEncoding('binary');
+                resp.on('data', (chunk) => {
+                    body += chunk;
+                }).on('end', () => {
+                    let imgPath = __dirname + '/../public/img/' + uuid() + ".jpg";
+                    fs.writeFileSync(imgPath, body, 'binary');
+                    let imagePath = 'public/img/' + imgPath.split('/').pop();
+                    console.log(imagePath);
+                    resolve(imagePath);
+                })
+            }).end();
+    })
+}
+
+module.exports = {
+    handleImage: handleImage,
+    getGoogleImg: getGoogleImg
+};
