@@ -11,6 +11,7 @@ module.exports = class User {
         this.email = userJson.email,
         this.password = userJson.password;
         this.image = userJson.image;
+        this.role = userJson.role;
     }
 
     static getUser(id) {

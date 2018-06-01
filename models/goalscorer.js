@@ -21,7 +21,16 @@ module.exports = class Goalscorer {
         })
     }
 
-    addGoalToMatch() {
-        
+    setGoalScorers(goalScorerJson){
+        return new Promise ((resolve, reject) => {
+            connection.query('INSERT INTO goalscorers SET ?', [goalScorerJson], 
+            (error, result, fields) => {
+                if (error)
+                    reject (error);
+                else {
+                    resolve(result.insertId);
+                }
+            })
+        })
     }
 }
