@@ -139,6 +139,31 @@ module.exports = class User {
         });
     }
 
+    static editUser (userJson) {
+        return new Promise ((resolve, reject) => {
+            if (userJson.password) {
+                bcrypt.hash(userJson.password, 5, (error, hash) => {
+                    let encryptedPassword = hash;
+                    userJson.password = hash;
+                    connection.query('UPDATE users SET ? WHERE id = ?', [userJson, userJson.id], (error, result, fields) => {
+                        if (error)
+                            return reject(error);
+                        else
+                            resolve(result.insertId);
+                    })
+                })
+            }
+            else {
+                connection.query('UPDATE users SET ? WHERE id = ?', [userJson, userJson.id], (error, result, fields) => {
+                    if (error)
+                        return reject(error);
+                    else
+                        resolve(result.insertId);
+                })
+            }
+        })
+    }
+
     static generateToken(id, email, name) {
         return jwt.sign({ id: id, email: email, name: name }, config.secret, { expiresIn: '4 hours' });
     }

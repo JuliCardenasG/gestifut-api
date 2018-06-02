@@ -80,6 +80,33 @@ router.post('/register', (req, res) => {
     })
 })
 
+router.put('/edit/:id', (req, res) => {
+    let user = req.body;
+    console.log(req.body);
+    ImageHandler.handleImage(user.image).then(image => {
+        user.image = image;
+        User.editUser(user).then(id => {
+            let resp = {
+                ok: true,
+                id: id
+            };
+            res.send(resp);
+        }).catch(err => {
+            let resp = {
+                ok: false,
+                error: err
+            }
+            res.status(500).send(resp);
+        })
+    }).catch(err => {
+        let resp = {
+            ok: false,
+            error: err
+        }
+        res.status(500).send(resp);
+    })
+})
+
 router.get('/user', passport.authenticate('jwt', { session: false}), (req, res) => {
     User.getUser(req.user.id).then(user => {
         let resp = {
