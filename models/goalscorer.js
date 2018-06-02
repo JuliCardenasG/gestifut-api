@@ -6,9 +6,10 @@ module.exports = class Goalscorer {
         this.match_id = goalscorerJson.match_id;
         this.team_id = goalscorerJson.team_id;
         this.player_id = goalscorerJson.player_id;
+        this.goals = goalScorerJson.goals;
     }
 
-    getGoalsScoredFromPlayer(playerId) {
+    static getGoalsScoredFromPlayer(playerId) {
         return new Promise ((resolve, reject) => {
             connection.query('SELECT COUNT(*) AS goals FROM goalscorers WHERE player_id = ?',
             (error, result, fields) => {
@@ -21,7 +22,7 @@ module.exports = class Goalscorer {
         })
     }
 
-    setGoalScorers(goalScorerJson){
+    static setGoalScorers(goalScorerJson){
         return new Promise ((resolve, reject) => {
             connection.query('INSERT INTO goalscorers SET ?', [goalScorerJson], 
             (error, result, fields) => {

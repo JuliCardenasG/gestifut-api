@@ -7,6 +7,7 @@ const Calendar = require('../models/calendar');
 const Matchday = require('../models/matchday');
 const Match = require('../models/match');
 const Clasification = require('../models/clasification');
+const Goalscorer = require('../models/goalscorer');
 const robin = require('roundrobin');
 
 let router = express.Router();
@@ -98,6 +99,25 @@ router.get('/tournaments/:id', (req, res) => {
             error: error
         }
         res.status(500).send(resp);
+    })
+})
+
+router.post('/goalscorers', (req, res) => {
+    let goalScorers = req.body;
+    let goalScorersPromises = []
+    goalScorersPromises = goalScorers.map(goalScorer => {
+        return new Promise ((resolve, reject) => {
+            Goalscorer.setGoalScorers(goalScorer).then(resultId => {
+                resolve(resultId);
+            })
+        })
+    })
+    Promise.all(goalScorersPromises).then(ids => {
+        let resp = {
+            ok: true,
+            ids: ids
+        };
+        res.send(resp); 
     })
 })
 
