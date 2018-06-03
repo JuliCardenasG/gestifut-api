@@ -36,11 +36,14 @@ router.use((req, res, next) => {
 router.get('/:id', (req, res) => {
     let matchId = req.params.id;
     Match.getMatch(matchId).then(match => {
-        let resp = {
-            ok: true,
-            match: match
-        };
-        res.send(resp);
+        Goalscorer.getMatchGoalScorers(matchId).then(goalscorers => {
+            match.goalscorers = goalscorers;
+            let resp = {
+                ok: true,
+                match: match
+            };
+            res.send(resp);
+        })
     }).catch(error => {
         let resp = {
             ok: false,
