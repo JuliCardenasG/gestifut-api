@@ -1,0 +1,9 @@
+Satisfy Any
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+
+# not rewrite css, js and images
+RewriteCond %{REQUEST_URI} !\.(?:css|js|map|jpe?g|gif|png)$ [NC]
+RewriteRule ^ index.html [L]
