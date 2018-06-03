@@ -44,12 +44,12 @@ module.exports = class Player {
 
     static getPlayersFromTeam(teamId) {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM players WHERE team_id = ?', [teamId], 
+            connection.query('SELECT *, (SELECT SUM(goals) FROM goalscorers WHERE goalscorers.player_id = players.id) AS goals FROM players WHERE team_id = ? ORDER BY goals DESC', [teamId], 
                 (error, result, fields) => {
                     if (error)
                         return reject(error);
                     else {
-                        let players = result.map(player => new Player(player));
+                        let players = result.map(player => player);
                         resolve(players);
                     }
                 })

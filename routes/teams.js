@@ -51,6 +51,7 @@ router.get('/:id', (req, res) => {
     let teamId = req.params.id;
     Team.getTeam(teamId).then(team => {
         Player.getPlayersFromTeam(teamId).then(players => {
+            console.log(players);
             team.players = players;
             let resp = {
                 ok: true,

@@ -9,7 +9,7 @@ module.exports = class User {
         this.id = userJson.id;
         this.name = userJson.name;
         this.email = userJson.email,
-        this.password = userJson.password;
+            this.password = userJson.password;
         this.image = userJson.image;
         this.role = userJson.role;
     }
@@ -34,6 +34,19 @@ module.exports = class User {
         })
     }
 
+    static getUsers() {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM users', (error, result, fields) => {
+                if (error)
+                    reject(error)
+                else {
+                    let users = result.map(user => new User(user));
+                    resolve (users);
+                }
+            })
+        })
+    }
+
     static login(loginJson) {
         return new Promise((resolve, reject) => {
             let email = loginJson.email;
@@ -51,7 +64,7 @@ module.exports = class User {
                             if (result)
                                 resolve(this.generateToken(user.id, user.email, user.name));
                             else
-                                resolve({error: 'La contraseña no coincide'});
+                                resolve({ error: 'La contraseña no coincide' });
                         })
                     }
                     else {
@@ -62,7 +75,7 @@ module.exports = class User {
         })
     }
 
-    static registerUser (userJson) {
+    static registerUser(userJson) {
         return new Promise((resolve, reject) => {
             bcrypt.hash(userJson.password, 5, (error, hash) => {
                 let encryptedPassword = hash;
@@ -89,7 +102,7 @@ module.exports = class User {
                     let googleResp = {};
                     if (error) {
                         reject(error)
-                    } 
+                    }
                     //If the user Google Id is not registered, it will proceed to register the user
                     else if (result.length === 0) {
                         User.registerGoogleUser(userJson).then(insertedUser => {
@@ -139,8 +152,8 @@ module.exports = class User {
         });
     }
 
-    static editUser (userJson) {
-        return new Promise ((resolve, reject) => {
+    static editUser(userJson) {
+        return new Promise((resolve, reject) => {
             if (userJson.password) {
                 bcrypt.hash(userJson.password, 5, (error, hash) => {
                     let encryptedPassword = hash;
@@ -164,17 +177,17 @@ module.exports = class User {
         })
     }
 
-    static deleteUser (userId) {
-        return new Promise ((resolve, reject) => {
+    static deleteUser(userId) {
+        return new Promise((resolve, reject) => {
             connection.query('DELETE FROM users WHERE id = ?', [userId],
-            (error, result, fields) => {
-                if (error){
-                    reject (error)
-                }
-                else {
-                    resolve (result.affectedRows)
-                }
-            })
+                (error, result, fields) => {
+                    if (error) {
+                        reject(error)
+                    }
+                    else {
+                        resolve(result.affectedRows)
+                    }
+                })
         })
     }
 
