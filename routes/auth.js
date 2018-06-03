@@ -181,4 +181,20 @@ router.get('/google', (req, res) => {
         }).end();
 })
 
+router.delete('/delete/:id', (req, res) => {
+    let userId = req.params.id;
+    User.deleteUser(userId).then(affRows => {
+        let resp = {
+            ok: true
+        };
+        res.send(resp);
+    }).catch(err => {
+        let resp = {
+            ok: false,
+            error: err
+        }
+        res.status(500).send(resp);
+    })
+})
+
 module.exports = router;

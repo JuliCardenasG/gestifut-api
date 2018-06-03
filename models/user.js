@@ -164,6 +164,20 @@ module.exports = class User {
         })
     }
 
+    static deleteUser (userId) {
+        return new Promise ((resolve, reject) => {
+            connection.query('DELETE FROM users WHERE id = ?', [userId],
+            (error, result, fields) => {
+                if (error){
+                    reject (error)
+                }
+                else {
+                    resolve (result.affectedRows)
+                }
+            })
+        })
+    }
+
     static generateToken(id, email, name) {
         return jwt.sign({ id: id, email: email, name: name }, config.secret, { expiresIn: '4 hours' });
     }

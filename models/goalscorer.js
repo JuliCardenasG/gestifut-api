@@ -34,4 +34,47 @@ module.exports = class Goalscorer {
             })
         })
     }
+
+    static getMatchGoalScorers(matchId) {
+        connection.query('SELECT (SELECT name FROM players WHERE id = player_id) AS name, (SELECT name FROM teams WHERE id = team_id) AS team, goals FROM goalscorers WHERE match_id = ? GROUP BY name',
+        [matchId], (error, result, fields) => {
+            if (error) {
+                reject (error)
+            }
+            else {
+                let goalScorers = result.map(goalscorer => {
+                    let goalScorer = {
+                        name: goalscorer.name,
+                        team: goalscorer.team,
+                        goals: goalscorer.goals
+                    };
+                    return goalScorer;
+                })
+                resolve (goalScorers)
+            }
+        })
+    }
+
+    //SELECT (SELECT name FROM players WHERE id = player_id) AS name, (SELECT name FROM teams WHERE id = team_id) AS team, goals FROM goalscorers WHERE match_id IN (SELECT id FROM matches WHERE matchday_id IN (SELECT id FROM matchdays WHERE tournament_id = 44)) GROUP BY name
+
+    static getTournamentGoalScorers(tournamentId) {
+        return new Promise ((resolve, reject) => {
+            connection.query('SELECT (SELECT name FROM players WHERE id = player_id) AS name, (SELECT name FROM teams WHERE id = team_id) AS team, SUM(goals) as goals FROM goalscorers WHERE match_id IN (SELECT id FROM matches WHERE matchday_id IN (SELECT id FROM matchdays WHERE tournament_id = ?)) GROUP BY name ORDER BY goals DESC',
+            [tournamentId], (error, result, fields) => {
+                if (error)
+                    reject (error)
+                else {
+                    let goalScorers = result.map(goalscorer => {
+                        let goalScorer = {
+                            name: goalscorer.name,
+                            team: goalscorer.team,
+                            goals: goalscorer.goals
+                        };
+                        return goalScorer;
+                    })
+                    resolve (goalScorers) 
+                }
+            })
+        })
+    }
 }

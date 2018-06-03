@@ -8,6 +8,7 @@ const Calendar = require('../models/calendar');
 const Matchday = require('../models/matchday');
 const Match = require('../models/match');
 const Clasification = require('../models/clasification');
+const Goalscorer = require('../models/goalscorer');
 const robin = require('roundrobin');
 let router = express.Router();
 
@@ -75,11 +76,14 @@ router.get('/:id', (req, res) => {
                     tournament.matchdays = matchdays;
                     Match.getTournamentMatches(tournamentId).then(matches => {
                         tournament.matches = matches;
-                        let resp = {
-                            ok: true,
-                            tournament: tournament
-                        };
-                        res.send(resp);
+                        Goalscorer.getTournamentGoalScorers(tournamentId).then(goalscorers => {
+                            tournament.goalscorers = goalscorers;
+                            let resp = {
+                                ok: true,
+                                tournament: tournament
+                            };
+                            res.send(resp);
+                        })
                     })
                 })
             })
